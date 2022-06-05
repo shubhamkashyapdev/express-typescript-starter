@@ -6,7 +6,7 @@ import morgan from 'morgan';
 console.log('working');
 import config from 'config';
 import logger from './utils/logger';
-
+import routes from './routes/routes';
 console.log('port', config.get<number>('port'));
 
 const app: Application = express();
@@ -35,4 +35,7 @@ const NODE_ENV = process.env.NODE_ENV;
 app.listen(PORT, () => {
   logger.info(`App is started listening on PORT: ${PORT} in ${NODE_ENV} mode`);
   connectDB();
+
+  // initialize routes
+  routes(app);
 });
