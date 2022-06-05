@@ -1,5 +1,6 @@
 import { DocumentDefinition } from 'mongoose';
 import UserModel, { UserDocument } from '../models/user.model';
+import omit from 'lodash/omit';
 
 export async function createUser(
   input: DocumentDefinition<
@@ -7,8 +8,26 @@ export async function createUser(
   >,
 ) {
   try {
-    return await UserModel.create(input);
+    const user = await UserModel.create(input);
+    return omit(user.toJSON(), 'password');
   } catch (err: any) {
     throw new Error(err.message);
   }
+}
+
+interface validateUser {
+  email: string;
+  password: string;
+}
+
+export async function validatePassword({ email, password }: validateUser) {
+  const user = await UserModel.findOne({ email });
+  if (!user) {
+    return false;
+  }
+  const isValid = await user.comparePassword(password);
+  if (!isValid) {
+    return false;
+  }
+  return omit(user.toJSON(), 'password');
 }
