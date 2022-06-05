@@ -14,16 +14,30 @@ export function signJwt(
     'base64',
   ).toString('ascii');
 
-  const token = jwt.sign(object, 'nuclearcodes', {
+  //TODO: use RSA hashing algorithm instead
+  //   const token = jwt.sign(object, 'nuclearcodes', {
+  //     ...(options && options),
+  //     algorithm: 'RS256',
+  //   });
+  const token = jwt.sign(object, config.get('jwtSecret'), {
     ...(options && options),
-    algorithm: 'RS256',
   });
-  console.log({ token });
+  return token;
 }
 
-export function verfiyJwt(token: string) {
+interface verifyJwtInterface {
+  decoded: any;
+  valid: boolean;
+  expired: boolean;
+}
+
+export function verfiyJwt(token: string): verifyJwtInterface {
   try {
-    const decoded = jwt.verify(token, publicKey);
+    // TODO: use this one when using the rs256 hasing
+    // const decoded = jwt.verify(token, publicKey);
+
+    const decoded = jwt.decode(token, config.get('jwtSecret'));
+
     return {
       valid: true,
       expired: false,

@@ -1,5 +1,9 @@
 import { Request, Response } from 'express';
-import { createSession } from '../services/session.service';
+import {
+  createSession,
+  findSessions,
+  updateSession,
+} from '../services/session.service';
 import { validatePassword } from '../services/user.service';
 import { signJwt } from '../utils/jwt.utils';
 import config from 'config';
@@ -26,9 +30,27 @@ export async function createUserSessionHandler(req: Request, res: Response) {
   const refreshToken = signJwt(
     { ...user, session: session._id },
     'refreshTokenPrivateKey',
-    { expiresIn: config.get('refreshTokenTtl') }, // 15 minutes
+    { expiresIn: config.get('refreshTokenTtl') }, // 1y
   );
 
   // return access & refresh tokens
   return res.send({ accessToken, refreshToken });
+}
+
+export async function getUserSessionsHandler(req: Request, res: Response) {
+  const userId = req.locals.user._id;
+  const sessions = await findSessions({ user: userId, valid: true });
+  return res.send(sessions);
+}
+
+export async function deleteSessionHandler(req: Request, res: Response) {
+  const sessionId = req.locals.user.session;
+  console.log({ sessionId });
+
+  await updateSession({ _id: sessionId }, { valid: false });
+
+  return res.send({
+    accessToken: null,
+    refreshToken: null,
+  });
 }

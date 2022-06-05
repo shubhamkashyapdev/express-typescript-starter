@@ -1,9 +1,18 @@
 import { Application, Request, Response } from 'express';
-import { createUserSessionHandler } from '../controllers/session.controller';
-import { createUserHandler } from '../controllers/user.controller';
+// Middlewares
 import validate from '../middleware/validateResource';
+
+// Controllers
+import {
+  createUserSessionHandler,
+  deleteSessionHandler,
+  getUserSessionsHandler,
+} from '../controllers/session.controller';
+import { createUserHandler } from '../controllers/user.controller';
+// Schemas
 import { createSessionSchema } from '../schema/session.shema';
 import { createUserSchema } from '../schema/user.schema';
+import requireUser from '../middleware/requireUser';
 
 function routes(app: Application) {
   app.get('/', (req: Request, res: Response) => {
@@ -20,6 +29,10 @@ function routes(app: Application) {
     validate(createSessionSchema),
     createUserSessionHandler,
   );
+
+  app.get('/api/sessions', requireUser, getUserSessionsHandler);
+
+  app.delete('/api/sessions', requireUser, deleteSessionHandler);
 }
 
 export default routes;

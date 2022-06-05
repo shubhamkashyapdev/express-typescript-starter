@@ -7,7 +7,8 @@ console.log('working');
 import config from 'config';
 import logger from './utils/logger';
 import routes from './routes/routes';
-console.log('port', config.get<number>('port'));
+
+import desearializeUser from './middleware/desearializeUser';
 
 const app: Application = express();
 
@@ -23,7 +24,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(morgan('tiny'));
 app.use(express.static('public'));
-
+app.use(desearializeUser);
 // Routes Configuration
 app.get('/', (req: Request, res: Response) => {
   res.send('working');
